@@ -19,6 +19,10 @@ export async function restoreWalletSession() {
 
   if (!key.encryptionKey) return;
 
+  // The keys come from the persisted store, which may still be rehydrating: Firefox answers
+  // storage.session before storage.local, so reading now finds no key and the wallet stays locked.
+  await waitForRehydration();
+
   try {
     const currentKey = selectDefaultSoftwareKey(store.getState());
 
@@ -29,4 +33,16 @@ export async function restoreWalletSession() {
   } catch (e) {
     logger.error('Failed to decrypt secret key');
   }
+}
+
+function waitForRehydration() {
+  const isRehydrated = () => store.getState()._persist?.rehydrated;
+  if (isRehydrated()) return Promise.resolve();
+  return new Promise<void>(resolve => {
+    const unsubscribe = store.subscribe(() => {
+      if (!isRehydrated()) return;
+      unsubscribe();
+      resolve();
+    });
+  });
 }
