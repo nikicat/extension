@@ -18,7 +18,9 @@ export function useGetInscriptionsByAddressQuery(address: string) {
   const limiter = useBestInSlotApiRateLimiter();
 
   const query = useInfiniteQuery({
-    enabled: !!address,
+    // ponytail: leatherapi.bestinslot.xyz is gone (NXDOMAIN) since Leather dropped ordinals
+    // support; disabled so the send flow stops waiting on it. Re-enable with a working API.
+    enabled: false,
     queryKey: createGetInscriptionsByAddressCacheKey(address, network.id),
     async queryFn({ pageParam, signal }) {
       const res = await limiter.add(
@@ -52,7 +54,7 @@ export function useGetInscriptionsByAddressQuery(address: string) {
 
   // Auto-trigger next request
   useEffect(() => {
-    if (!address) return;
+    if (!address || !query.hasNextPage) return;
     void query.fetchNextPage();
   }, [address, query, query.data]);
 

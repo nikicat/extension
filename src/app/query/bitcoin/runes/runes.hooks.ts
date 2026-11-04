@@ -1,22 +1,15 @@
 import { useMemo } from 'react';
 
-import { bitcoinNetworkToNetworkMode } from '@leather.io/models';
 import { isDefined } from '@leather.io/utils';
-
-import { useConfigRunesEnabled } from '@app/query/common/remote-config/remote-config.query';
-import { useLeatherNetwork } from '@app/query/leather-query-provider';
 
 import { useGetRunesOutputsByAddressQuery } from './runes-outputs-by-address.query';
 import { useGetRunesTickerInfoQuery } from './runes-ticker-info.query';
 import { useGetRunesWalletBalancesByAddressesQuery } from './runes-wallet-balances.query';
 
+// ponytail: runes data came from leatherapi.bestinslot.xyz, which no longer resolves;
+// off until there is a working runes API.
 export function useRunesEnabled() {
-  const runesEnabled = useConfigRunesEnabled();
-  const network = useLeatherNetwork();
-
-  return (
-    runesEnabled || bitcoinNetworkToNetworkMode(network.chain.bitcoin.bitcoinNetwork) === 'testnet'
-  );
+  return false;
 }
 
 export function useRuneTokens(addresses: string[]) {
